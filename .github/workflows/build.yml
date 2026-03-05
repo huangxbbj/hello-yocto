@@ -49,11 +49,17 @@ jobs:
           echo "GITHUB_WORKSPACE = $GITHUB_WORKSPACE"
           echo "Contents of workspace:"
           tree  $GITHUB_WORKSPACE/poky/meta-mathutils
-  
+
+      - name: Run tests
+        run: |
+          source poky/oe-init-build-env build
+          BINARY=$(find build/tmp/work -name mathutils -type f | head -n 1)
+          echo "Testing binary: $BINARY"
+          $BINARY
+
       - name: Upload mathutils binary
         uses: actions/upload-artifact@v4
         with:
           name: mathutils_app
           path: poky/build/tmp/work/*/mathutils/*/image/usr/bin/mathutils_app
 
-    
