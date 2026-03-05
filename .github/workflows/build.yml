@@ -44,10 +44,11 @@ jobs:
           bitbake-layers add-layer ../meta-mathutils
           bitbake mathutils
 
-      - name: Print build info
+      - name: Print workspace info
         run: |
-          echo "Contents of build:"
-          ls -l build/tmp/work/core2-64-poky-linux/mathutils/1.0-r0/
+          echo "GITHUB_WORKSPACE = $GITHUB_WORKSPACE"
+          echo "Contents of workspace:"
+          tree  $GITHUB_WORKSPACE
   
       - name: Upload mathutils binary
         uses: actions/upload-artifact@v4
