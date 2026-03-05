@@ -1,0 +1,33 @@
+name: Yocto Build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout meta-mathutils
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            gawk wget git diffstat unzip texinfo gcc build-essential \
+            chrpath socat cpio python3 python3-pip python3-pexpect \
+            xz-utils debianutils iputils-ping file
+
+      - name: Clone poky (kirkstone)
+        run: |
+          git clone git://git.yoctoproject.org/poky -b kirkstone
+
+      - name: Add layer and build
+        run: |
+          mv $GITHUB_WORKSPACE poky/meta-mathutils
+          cd poky
+          source oe-init-build-env build
+          bitbake-layers add-layer ../meta-mathutils
+          bitbake mathutils
