@@ -43,3 +43,16 @@ jobs:
           source oe-init-build-env build
           bitbake-layers add-layer ../meta-mathutils
           bitbake mathutils
+
+      - name: Print build info
+        run: |
+          echo "Contents of build:"
+          ls -l build/tmp/work/core2-64-poky-linux/mathutils/1.0-r0/
+  
+      - name: Upload mathutils binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: mathutils_app
+          path: poky/build/tmp/work/*/mathutils/*/image/usr/bin/mathutils_app
+
+    
