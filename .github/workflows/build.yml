@@ -38,7 +38,7 @@ jobs:
   
       - name: Add layer and build
         run: |
-          mv $GITHUB_WORKSPACE poky/meta-mathutils
+          mv $GITHUB_WORKSPACE/meta-mathutils poky/meta-mathutils
           cd poky
           source oe-init-build-env build
           bitbake-layers add-layer ../meta-mathutils
