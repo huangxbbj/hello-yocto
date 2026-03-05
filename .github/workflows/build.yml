@@ -12,6 +12,12 @@ jobs:
       - name: Checkout meta-mathutils
         uses: actions/checkout@v4
 
+      - name: Print workspace info
+        run: |
+          echo "GITHUB_WORKSPACE = $GITHUB_WORKSPACE"
+          echo "Contents of workspace:"
+          ls -l $GITHUB_WORKSPACE
+
       - name: Install dependencies
         run: |
           sudo apt update
@@ -24,6 +30,12 @@ jobs:
         run: |
           git clone git://git.yoctoproject.org/poky -b kirkstone
 
+      - name: Print workspace info
+        run: |
+          echo "GITHUB_WORKSPACE = $GITHUB_WORKSPACE"
+          echo "Contents of workspace:"
+          ls -l $GITHUB_WORKSPACE
+  
       - name: Add layer and build
         run: |
           mv $GITHUB_WORKSPACE poky/meta-mathutils
