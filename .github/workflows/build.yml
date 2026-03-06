@@ -43,10 +43,6 @@ jobs:
           path: poky/sstate-cache
           key: yocto-sstate-${{ runner.os }}
 
-      - name: Enable ptest
-        run: |
-          echo 'DISTRO_FEATURES:append = " ptest"' >> poky/build/conf/local.conf
-          echo 'EXTRA_IMAGE_FEATURES += "ptest-pkgs"' >> poky/build/conf/local.conf
           
       - name: Setup build environment
         run: |
@@ -57,7 +53,9 @@ jobs:
           echo 'SSTATE_DIR = "${TOPDIR}/../sstate-cache"' >> conf/local.conf
           echo 'BB_NUMBER_THREADS = "4"' >> conf/local.conf
           echo 'PARALLEL_MAKE = "-j4"' >> conf/local.conf
-
+          echo 'DISTRO_FEATURES:append = " ptest"' >> conf/local.conf
+          echo 'EXTRA_IMAGE_FEATURES += "ptest-pkgs"' >> conf/local.conf
+          
           bitbake-layers add-layer ../../meta-mathutils
 
       - name: Build mathutils
