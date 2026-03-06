@@ -9,14 +9,13 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - name: Checkout meta-mathutils
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Print workspace info
+      - name: Show workspace info
         run: |
-          echo "GITHUB_WORKSPACE = $GITHUB_WORKSPACE"
-          echo "Contents of workspace:"
-          ls -l $GITHUB_WORKSPACE
+          echo "Workspace: $GITHUB_WORKSPACE"
+          ls -al
 
       - name: Install dependencies
         run: |
@@ -24,43 +23,57 @@ jobs:
           sudo apt install -y \
             gawk wget git diffstat unzip texinfo gcc build-essential \
             chrpath socat cpio python3 python3-pip python3-pexpect \
-            xz-utils debianutils iputils-ping file
+            xz-utils debianutils iputils-ping file tree
 
       - name: Clone poky (kirkstone)
         run: |
-          git clone git://git.yoctoproject.org/poky -b kirkstone
+          git clone --depth 1 -b kirkstone git://git.yoctoproject.org/poky
 
-      - name: Print workspace info
+      # Cache downloads (big speed improvement)
+      - name: Cache downloads
+        uses: actions/cache@v4
+        with:
+          path: poky/downloads
+          key: yocto-downloads-${{ runner.os }}
+
+      # Cache sstate (huge speed improvement)
+      - name: Cache sstate
+        uses: actions/cache@v4
+        with:
+          path: poky/sstate-cache
+          key: yocto-sstate-${{ runner.os }}
+
+      - name: Setup build environment
         run: |
-          echo "GITHUB_WORKSPACE = $GITHUB_WORKSPACE"
-          echo "Contents of workspace:"
-          ls -l $GITHUB_WORKSPACE
-  
-      - name: Add layer and build
-        run: |
-          mv $GITHUB_WORKSPACE/meta-mathutils poky/meta-mathutils
           cd poky
           source oe-init-build-env build
-          bitbake-layers add-layer ../meta-mathutils
+
+          echo 'DL_DIR = "${TOPDIR}/../downloads"' >> conf/local.conf
+          echo 'SSTATE_DIR = "${TOPDIR}/../sstate-cache"' >> conf/local.conf
+          echo 'BB_NUMBER_THREADS = "4"' >> conf/local.conf
+          echo 'PARALLEL_MAKE = "-j4"' >> conf/local.conf
+
+          bitbake-layers add-layer ../../meta-mathutils
+
+      - name: Build mathutils
+        run: |
+          cd poky
+          source oe-init-build-env build
           bitbake mathutils
 
-      - name: Print meta-mathutils info
+      - name: Locate binary
         run: |
-          echo "GITHUB_WORKSPACE = $GITHUB_WORKSPACE"
-          echo "Contents of workspace:"
-          tree  $GITHUB_WORKSPACE/poky/meta-mathutils
+          BINARY=$(find poky/build/tmp/work -name mathutils_app | head -n 1)
+          echo "Binary found at: $BINARY"
+          echo "BINARY=$BINARY" >> $GITHUB_ENV
 
       - name: Run tests
         run: |
-          source poky/oe-init-build-env build
-          BINARY=$(find $GITHUB_WORKSPACE/poky/build/tmp/work -path "*/image/usr/bin/mathutils_app" | head -n 1)
-          echo "Testing binary: $BINARY"
           chmod +x $BINARY
           $BINARY
-    
-      - name: Upload mathutils binary
+
+      - name: Upload binary artifact
         uses: actions/upload-artifact@v4
         with:
           name: mathutils_app
-          path: poky/build/tmp/work/*/mathutils/*/image/usr/bin/mathutils_app
-
+          path: ${{ env.BINARY }}
