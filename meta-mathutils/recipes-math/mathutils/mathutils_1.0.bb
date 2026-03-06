@@ -6,6 +6,7 @@ LIC_FILES_CHKSUM = ""
 SRC_URI = "file://main.c \
            file://math_utils.c \
            file://math_utils.h \
+           file://run-ptest \
            file://test_math.c"
 
 S = "${WORKDIR}"
