@@ -61,14 +61,11 @@ jobs:
           source oe-init-build-env build
           bitbake mathutils
 
-      - name: Locate binary
+      - name: Locate binary & Run tests
         run: |
           BINARY=$(find poky/build/tmp/work -path "*/image/usr/bin/mathutils_app" | head -n 1)
           echo "Binary found at: $BINARY"
           echo "BINARY=$BINARY" >> $GITHUB_ENV
-
-      - name: Run tests
-        run: |
           chmod +x $BINARY
           $BINARY
 
