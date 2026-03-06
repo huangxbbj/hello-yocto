@@ -1,0 +1,13 @@
+#!/bin/sh
+
+echo "Running mathutils test..."
+
+result=$(/usr/bin/mathutils_app)
+
+if [ "$result" = "2 + 3 = 5" ]; then
+    echo "PASS"
+    exit 0
+else
+    echo "FAIL"
+    exit 1
+fi
