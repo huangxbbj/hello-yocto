@@ -43,6 +43,11 @@ jobs:
           path: poky/sstate-cache
           key: yocto-sstate-${{ runner.os }}
 
+      - name: Enable ptest
+        run: |
+          echo 'DISTRO_FEATURES:append = " ptest"' >> poky/build/conf/local.conf
+          echo 'EXTRA_IMAGE_FEATURES += "ptest-pkgs"' >> poky/build/conf/local.conf
+          
       - name: Setup build environment
         run: |
           cd poky
