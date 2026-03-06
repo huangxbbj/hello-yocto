@@ -53,10 +53,11 @@ jobs:
       - name: Run tests
         run: |
           source poky/oe-init-build-env build
-          BINARY=$(find $GITHUB_WORKSPACE/poky/build/tmp/work -name mathutils -type f | head -n 1)
+          BINARY=$(find $GITHUB_WORKSPACE/poky/build/tmp/work -path "*/image/usr/bin/mathutils_app" | head -n 1)
           echo "Testing binary: $BINARY"
+          chmod +x $BINARY
           $BINARY
-
+    
       - name: Upload mathutils binary
         uses: actions/upload-artifact@v4
         with:
