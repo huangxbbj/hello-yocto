@@ -63,7 +63,7 @@ jobs:
 
       - name: Locate binary
         run: |
-          BINARY=$(find poky/build/tmp/work -name mathutils_app | head -n 1)
+          BINARY=$(find poky/build/tmp/work -path "*/image/usr/bin/mathutils_app" | head -n 1)
           echo "Binary found at: $BINARY"
           echo "BINARY=$BINARY" >> $GITHUB_ENV
 
