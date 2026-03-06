@@ -62,19 +62,38 @@ jobs:
         run: |
           cd poky
           source oe-init-build-env build
-          bitbake mathutils
+          #bitbake mathutils
+          echo 'IMAGE_INSTALL:append = " mathutils"' >> conf/local.conf
+          bitbake core-image-minimal
 
-      - name: Locate binary & Run tests
+      - name: Boot QEMU and run runtime test
         run: |
-          sudo ln -sf /lib64/ld-linux-x86-64.so.2 /lib/ld-linux-x86-64.so.2
-          BINARY=$(find poky/build/tmp/work -path "*/image/usr/bin/mathutils_app" | head -n 1)
-          echo "Binary found at: $BINARY"
-          echo "BINARY=$BINARY" >> $GITHUB_ENV
-          chmod +x $BINARY
-          $BINARY
+          cd poky
+          source oe-init-build-env build
 
-      - name: Upload binary artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: mathutils_app
-          path: ${{ env.BINARY }}
+          echo "Starting QEMU test..."
+
+          expect << 'EOF'
+          set timeout 120
+          spawn runqemu qemux86-64 nographic
+
+          expect "login:"
+          send "root\r"
+
+          expect "#"
+          send "mathutils_app\r"
+
+          expect {
+              "2 + 3 = 5" {
+                  puts "Runtime test PASSED"
+              }
+              timeout {
+                  puts "Runtime test FAILED"
+                  exit 1
+              }
+          }
+
+          send "poweroff\r"
+          expect eof
+          EOF
+
